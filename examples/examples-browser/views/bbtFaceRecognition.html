@@ -141,7 +141,7 @@
       // resize detection and landmarks in case displayed image is smaller than
       // original size
       const resizedResults = faceapi.resizeResults(results, inputImgEl)
-
+            
       resizedResults.forEach(({ detection, descriptor }) => {
         const label = faceMatcher.findBestMatch(descriptor).toString()
         const options = { label }
@@ -150,17 +150,22 @@
       })
     }
 
+    var startExecTime = null;
+
     async function run() {
+      startTime = performance.now();
       // load face detection, face landmark model and face recognition models
       await changeFaceDetector(selectedFaceDetector)
       await faceapi.loadFaceLandmarkModel('/')
       await faceapi.loadFaceRecognitionModel('/')
 
       // initialize face matcher with 1 reference descriptor per bbt character
-      faceMatcher = await createBbtFaceMatcher(1)
+      faceMatcher = await createBbtFaceMatcher(2)
 
       // start processing image
       updateResults()
+
+      console.log(`It took ${((performance.now() - startExecTime) / 1000).toFixed(2)} seconds to execute BBT Face Recognition`);
     }
 
     $(document).ready(function() {
