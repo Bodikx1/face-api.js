@@ -26,7 +26,7 @@ function renderFaceImageSelectList(selectListId, onChange, initialValue) {
 }
 
 // fetch first image of each class and compute their descriptors
-async function createBbtFaceMatcher(numImagesForTraining = 5) {
+async function createBbtFaceMatcher(numImagesForTraining = 1) {
   const maxAvailableImagesPerClass = 5;
   numImagesForTraining = Math.min(numImagesForTraining, maxAvailableImagesPerClass);
 

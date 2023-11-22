@@ -160,7 +160,7 @@
       await faceapi.loadFaceRecognitionModel('/')
 
       // initialize face matcher with 1 reference descriptor per bbt character
-      faceMatcher = await createBbtFaceMatcher(2)
+      faceMatcher = await createBbtFaceMatcher(3)
 
       // start processing image
       updateResults()
