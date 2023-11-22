@@ -4,6 +4,7 @@
   <script src="face-api.js"></script>
   <script src="js/commons.js"></script>
   <script src="js/faceDetectionControls.js"></script>
+  <script src="js/bbt.js"></script>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.css">
   <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
@@ -110,6 +111,7 @@
 
   <script>
     let forwardTimes = []
+    let faceMatcher = null
 
     function updateTimeStats(timeInMs) {
       forwardTimes = [timeInMs].concat(forwardTimes).slice(0, 30)
@@ -129,14 +131,22 @@
 
       const ts = Date.now()
 
-      const result = await faceapi.detectSingleFace(videoEl, options)
+      const result = await faceapi.detectSingleFace(videoEl, options).withFaceLandmarks().withFaceDescriptor();
 
       updateTimeStats(Date.now() - ts)
 
       if (result) {
         const canvas = $('#overlay').get(0)
         const dims = faceapi.matchDimensions(canvas, videoEl, true)
-        faceapi.draw.drawDetections(canvas, faceapi.resizeResults(result, dims))
+        const { detection, descriptor } = faceapi.resizeResults(result, dims);
+
+        // faceapi.draw.drawDetections(canvas, faceapi.resizeResults(result, dims))
+
+        // new implementation:
+        const label = faceMatcher.findBestMatch(descriptor).toString()
+        const options = { label }
+        const drawBox = new faceapi.draw.DrawBox(detection.box, options)
+        drawBox.draw(canvas)
       }
 
       setTimeout(() => onPlay())
@@ -144,8 +154,14 @@
 
     async function run() {
       // load face detection model
-      await changeFaceDetector(TINY_FACE_DETECTOR)
+      await changeFaceDetector(SSD_MOBILENETV1)
+      await faceapi.loadFaceLandmarkModel('/')
+      await faceapi.loadFaceRecognitionModel('/')
+
       changeInputSize(128)
+
+      // initialize face matcher with 1 reference descriptor per bbt character
+      faceMatcher = await createBbtFaceMatcher(3)
 
       // try to access users webcam and stream the images
       // to the video element
