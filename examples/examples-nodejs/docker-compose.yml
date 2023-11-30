@@ -1,0 +1,14 @@
+version: '3'
+services:
+  face-api-js:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: tfjs-node:cpu
+    volumes:
+      - '.:/Users/bogdankozlov/Documents/Projects/Pet/face-api.js/examples/examples-nodejs'
+    entrypoint: ['/bin/sh', '-c']
+    command:
+      # npm i
+      - |
+        npm run ts-node faceRecognition.ts
